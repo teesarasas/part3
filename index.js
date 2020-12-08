@@ -6,7 +6,12 @@ const cors = require('cors')
 app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
-morgan.token('person', req => JSON.stringify(req.body))
+morgan.token('person', (req) => {
+  if (req.method === 'POST') {
+    return JSON.stringify(req.body)
+  }
+  return null
+})
 app.use(morgan(':method :url :status :response-time ms :person'))
 
 let persons = [
@@ -63,7 +68,7 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  person.id = maxId + 1
+  persons.id = generateId() + 1
   const nameExist = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
 
   if (!body.content) {
